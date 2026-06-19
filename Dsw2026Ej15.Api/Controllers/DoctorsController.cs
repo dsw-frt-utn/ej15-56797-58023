@@ -7,18 +7,18 @@ using Dsw2026Ej15.Api.Models;
 
 namespace Dsw2026Ej15.Api.Controllers
 {
-        [ApiController]
-        [Route("api/doctors")]
-        public class DoctorsController : ControllerBase
+    [ApiController]
+    [Route("api/doctors")]
+    public class DoctorsController : ControllerBase
+    {
+        private readonly IPersistence _persistence;
+        public DoctorsController(IPersistence persistence)
         {
-            private readonly IPersistence _persistence;
-            public DoctorsController(IPersistence persistence)
-            {
-                _persistence = persistence;
-            }
-            
-            [HttpPost]
+            _persistence = persistence;
+        }
+
         [HttpPost]
+
         public async Task<IActionResult> CreateDoctor([FromBody] DoctorModel.Request dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Name))
@@ -40,55 +40,56 @@ namespace Dsw2026Ej15.Api.Controllers
             var doctor = new Doctor(dto.Name, dto.LicenseNumber, speciality);
             await _persistence.AddDoctorAsync(doctor);
 
-            return StatusCode(StatusCodes.Status201Created);
+            return CreatedAtAction(nameof(GetById), new { id = doctor.Id }, null);
         }
 
         [HttpGet]
-            public async Task<IActionResult> Get()
-            {
-                var activeDoctors = await _persistence.GetActiveDoctorsAsync();
+        public async Task<IActionResult> Get()
+        {
+            var activeDoctors = await _persistence.GetActiveDoctorsAsync();
 
-                var response = activeDoctors.Select(d => new DoctorResponseDto(
-                    d.Name,
-                    d.LicenseNumber,
-                    d.Speciality?.Name ?? string.Empty
-                ));
+            var response = activeDoctors.Select(d => new DoctorResponseDto
+            (
+                d.Name,
+                d.LicenseNumber,
+                d.Speciality?.Name ?? string.Empty
+            ));
 
-                return Ok(response);
-            }
-            
-            [HttpGet("{id}")]
-            public async Task<IActionResult> GetById(string id)
-            {
-                var doctor = await _persistence.GetDoctorByIdAsync(id);
-
-                if (doctor == null || !doctor.IsActive)
-                {
-                    return NotFound();
-                }
-
-                var response = new DoctorResponseDto(
-                    doctor.Name,
-                    doctor.LicenseNumber,
-                    doctor.Speciality?.Name ?? string.Empty
-                );
-
-                return Ok(response);
-            }
-
-            [HttpDelete("{id}")]
-            public async Task<IActionResult> Delete(string id)
-            {
-                var doctor = await _persistence.GetDoctorByIdAsync(id);
-
-                if (doctor == null || !doctor.IsActive)
-                {
-                    return NotFound();
-                }
-
-                doctor.Deactivate();
-
-                return NoContent();
-            }
+            return Ok(response);
         }
+
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var doctor = await _persistence.GetDoctorByIdAsync(id.ToString());
+
+            if (doctor == null || !doctor.IsActive)
+            {
+                return NotFound();
+            }
+
+            var response = new DoctorResponseDto(
+                doctor.Name,
+                doctor.LicenseNumber,
+                doctor.Speciality?.Name ?? string.Empty
+            );
+
+            return Ok(response);
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var doctor = await _persistence.GetDoctorByIdAsync(id.ToString());
+
+            if (doctor == null || !doctor.IsActive)
+            {
+                return NotFound();
+            }
+
+            doctor.Deactivate();
+
+            return NoContent();
+        }
+    }
 }
