@@ -18,31 +18,32 @@ namespace Dsw2026Ej15.Api.Controllers
             }
             
             [HttpPost]
-            public async Task<IActionResult> CreateDoctor(DoctorModel.Request dto)
+        [HttpPost]
+        public async Task<IActionResult> CreateDoctor([FromBody] DoctorModel.Request dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Name))
             {
-                if (string.IsNullOrWhiteSpace(dto.Name))
-                {
-                    return BadRequest(new { error = "El nombre es requerido." });
-                }
-
-                if (string.IsNullOrWhiteSpace(dto.LicenseNumber))
-                {
-                    return BadRequest(new { error = "El numero de licencia es requerido." });
-                }
-
-                var speciality = await _persistence.GetSpecialityByIdAsync(dto.SpecialityId);
-                if (speciality == null)
-                {
-                    return BadRequest(new { error = "La especialidad indicada no existe." });
-                }
-
-                var doctor = new Doctor(dto.Name, dto.LicenseNumber, speciality);
-                await _persistence.AddDoctorAsync(doctor);
-
-                return StatusCode(StatusCodes.Status201Created);
+                throw new ValidationException("El nombre es requerido.");
             }
-            
-            [HttpGet]
+
+            if (string.IsNullOrWhiteSpace(dto.LicenseNumber))
+            {
+                throw new ValidationException("El numero de licencia es requerido.");
+            }
+
+            var speciality = await _persistence.GetSpecialityByIdAsync(dto.SpecialityId);
+            if (speciality == null)
+            {
+                throw new ValidationException("La especialidad indicada no existe.");
+            }
+
+            var doctor = new Doctor(dto.Name, dto.LicenseNumber, speciality);
+            await _persistence.AddDoctorAsync(doctor);
+
+            return StatusCode(StatusCodes.Status201Created);
+        }
+
+        [HttpGet]
             public async Task<IActionResult> Get()
             {
                 var activeDoctors = await _persistence.GetActiveDoctorsAsync();
