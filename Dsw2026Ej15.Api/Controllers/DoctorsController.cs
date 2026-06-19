@@ -3,37 +3,37 @@ using Dsw2026Ej15.Domain.Interfaces;
 using Dsw2026Ej15.Domain.Exceptions;
 using Dsw2026Ej15.Api.Dtos;
 using Microsoft.AspNetCore.Mvc;
+using Dsw2026Ej15.Api.Models;
 
 namespace Dsw2026Ej15.Api.Controllers
 {
         [ApiController]
-        [Route("api/[controller]")]
+        [Route("api/doctors")]
         public class DoctorsController : ControllerBase
         {
             private readonly IPersistence _persistence;
-
             public DoctorsController(IPersistence persistence)
             {
                 _persistence = persistence;
             }
-
+            
             [HttpPost]
-            public async Task<IActionResult> Post([FromBody] DoctorCreateDto dto)
+            public async Task<IActionResult> CreateDoctor(DoctorModel.Request dto)
             {
                 if (string.IsNullOrWhiteSpace(dto.Name))
                 {
-                    throw new ValidationException("El nombre es requerido.");
+                    return BadRequest(new { error = "El nombre es requerido." });
                 }
 
                 if (string.IsNullOrWhiteSpace(dto.LicenseNumber))
                 {
-                    throw new ValidationException("El número de licencia es requerido.");
+                    return BadRequest(new { error = "El numero de licencia es requerido." });
                 }
 
                 var speciality = await _persistence.GetSpecialityByIdAsync(dto.SpecialityId);
                 if (speciality == null)
                 {
-                    throw new ValidationException("La especialidad indicada no existe.");
+                    return BadRequest(new { error = "La especialidad indicada no existe." });
                 }
 
                 var doctor = new Doctor(dto.Name, dto.LicenseNumber, speciality);
@@ -41,7 +41,7 @@ namespace Dsw2026Ej15.Api.Controllers
 
                 return StatusCode(StatusCodes.Status201Created);
             }
-
+            
             [HttpGet]
             public async Task<IActionResult> Get()
             {
@@ -55,9 +55,9 @@ namespace Dsw2026Ej15.Api.Controllers
 
                 return Ok(response);
             }
-
+            
             [HttpGet("{id}")]
-            public async Task<IActionResult> GetById(Guid id)
+            public async Task<IActionResult> GetById(string id)
             {
                 var doctor = await _persistence.GetDoctorByIdAsync(id);
 
@@ -76,7 +76,7 @@ namespace Dsw2026Ej15.Api.Controllers
             }
 
             [HttpDelete("{id}")]
-            public async Task<IActionResult> Delete(Guid id)
+            public async Task<IActionResult> Delete(string id)
             {
                 var doctor = await _persistence.GetDoctorByIdAsync(id);
 
@@ -90,5 +90,4 @@ namespace Dsw2026Ej15.Api.Controllers
                 return NoContent();
             }
         }
-    
 }

@@ -10,7 +10,7 @@ namespace Dsw2026Ej15.Domain.Interfaces
         Task AddDoctorAsync(Doctor doctor);
         Task UpdateDoctorAsync(Doctor doctor);
         Task<IEnumerable<Doctor>> GetActiveDoctorsAsync();
-        Task<Doctor?> GetDoctorByIdAsync(Guid id);
+        Task<Doctor?> GetDoctorByIdAsync(string id);
         Task<Speciality?> GetSpecialityByIdAsync(Guid id);
     }
 }

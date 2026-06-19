@@ -13,6 +13,10 @@ namespace Dsw2026Ej15.Domain.Entities
         {
             Name = name;
             Description = description;
+            if (id.HasValue)
+            {
+                Id = id.Value;
+            }
         }
     }
 }

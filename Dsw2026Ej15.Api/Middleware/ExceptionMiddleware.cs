@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Text.Json;
 
 namespace Dsw2026Ej15.Api.Middleware
@@ -26,24 +27,21 @@ namespace Dsw2026Ej15.Api.Middleware
             }
         }
 
-        private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
+            HttpStatusCode status = HttpStatusCode.InternalServerError;
+            string message = "Ocurrio un error inesperado al ejecutar la solicitud.";
             context.Response.ContentType = "application/json";
 
-            context.Response.StatusCode = exception switch
+            if (exception is ValidationException ve)
             {
-                ValidationException => StatusCodes.Status400BadRequest,
-                _ => StatusCodes.Status500InternalServerError
-            };
-
-            var response = new
-            {
-                Message = exception is ValidationException
-                    ? exception.Message
-                    : "Ocurrió un problema interno en el servidor."
-            };
-
-            return context.Response.WriteAsync(JsonSerializer.Serialize(response));
+                status = HttpStatusCode.BadRequest;
+                message = ve.Message;
+            }
+            var result = JsonSerializer.Serialize(new { error = message });
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)status;
+            await context.Response.WriteAsync(result);
         }
     }
 }
