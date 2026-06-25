@@ -1,6 +1,7 @@
 using Dsw2026Ej15.Domain.Interfaces;
 using Dsw2026Ej15.Data;
 using Dsw2026Ej15.Api.Middleware;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dsw2026Ej15.Api
 {
@@ -9,9 +10,17 @@ namespace Dsw2026Ej15.Api
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            var connectionString= "Data Source=(localdb)\\MSSQLLocalDB;Database=Dsw2026Ej15;Integrated Security=True;Connection Timeout=30;Encrypt=True;TrustServerCertificate=True;";
+
+            builder.Services.AddDbContext<Dsw2026Ej15DbContext>(options =>
+            {
+                options.UseSqlServer(connectionString);
+            });
+
             // Registrar controladores
             builder.Services.AddControllers();
-            
+
             builder.Services.AddSwaggerGen();
             // Configurar Health Check básico
             builder.Services.AddHealthChecks();
