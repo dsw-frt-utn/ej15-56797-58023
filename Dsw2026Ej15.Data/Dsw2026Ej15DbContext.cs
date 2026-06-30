@@ -11,31 +11,15 @@ namespace Dsw2026Ej15.Data
        public Dsw2026Ej15DbContext(DbContextOptions<Dsw2026Ej15DbContext> options) : base(options)
         {
         }
-        // Define DbSet properties for your entities here
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<Speciality> Specialities { get; set; }
-        // public DbSet<Speciality> Specialities { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            // Configure entity relationships and constraints here if needed
-            modelBuilder.Entity<Doctor>(entity =>
-            {
-                entity.HasKey(d => d.Id);
-                entity.Property(d => d.Name).IsRequired().HasMaxLength(100);
-                entity.Property(d => d.LicenseNumber).IsRequired();
-
-                entity.HasIndex(d => d.LicenseNumber)
-                .IsUnique();
-            });
-
-            modelBuilder.Entity<Speciality>(entity =>
-            {
-                entity.HasKey(s => s.Id);
-                entity.Property(s => s.Name).IsRequired().HasMaxLength(100);
-                entity.Property(s => s.Description).HasMaxLength(500);
-            });
+            //Mas limpio y ordenado
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(Dsw2026Ej15DbContext).Assembly);
         }
-        // public DbSet<Doctor> Doctors { get; set; }
+
     }
 }
