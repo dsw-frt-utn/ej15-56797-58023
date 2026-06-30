@@ -2,12 +2,13 @@ using Dsw2026Ej15.Domain.Interfaces;
 using Dsw2026Ej15.Data;
 using Dsw2026Ej15.Api.Middleware;
 using Microsoft.EntityFrameworkCore;
+using Dsw2026Ej15.Api.Extensions;
 
 namespace Dsw2026Ej15.Api
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -25,9 +26,12 @@ namespace Dsw2026Ej15.Api
             // Configurar Health Check básico
             builder.Services.AddHealthChecks();
             // Inyección de dependencia (Singleton requerido por el enunciado f)
-            builder.Services.AddSingleton<IPersistence, PersistenceInMemory>();
+            builder.Services.AddScoped<IPersistence, PersistenceEf>();
 
             var app = builder.Build();
+
+            await app.SeedSpecialitiesAsync();
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();

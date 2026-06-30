@@ -58,10 +58,10 @@ namespace Dsw2026Ej15.Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetById(Guid id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(string id)
         {
-            var doctor = await _persistence.GetDoctorByIdAsync(id.ToString());
+            var doctor = await _persistence.GetDoctorByIdAsync(id);
 
             if (doctor == null || !doctor.IsActive)
             {
@@ -77,10 +77,10 @@ namespace Dsw2026Ej15.Api.Controllers
             return Ok(response);
         }
 
-        [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(string id)
         {
-            var doctor = await _persistence.GetDoctorByIdAsync(id.ToString());
+            var doctor = await _persistence.GetDoctorByIdAsync(id);
 
             if (doctor == null || !doctor.IsActive)
             {
@@ -88,6 +88,8 @@ namespace Dsw2026Ej15.Api.Controllers
             }
 
             doctor.Deactivate();
+
+            await _persistence.UpdateDoctorAsync(doctor);
 
             return NoContent();
         }

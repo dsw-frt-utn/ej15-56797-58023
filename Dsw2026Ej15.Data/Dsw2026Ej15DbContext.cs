@@ -24,6 +24,9 @@ namespace Dsw2026Ej15.Data
                 entity.HasKey(d => d.Id);
                 entity.Property(d => d.Name).IsRequired().HasMaxLength(100);
                 entity.Property(d => d.LicenseNumber).IsRequired();
+
+                entity.HasIndex(d => d.LicenseNumber)
+                .IsUnique();
             });
 
             modelBuilder.Entity<Speciality>(entity =>
